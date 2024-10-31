@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"node server.js
+    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <h1>Weather App</h1>
+    <form id="weather-form">
+        <label for="zipcode">Enter ZIP Code:</label>
+        <input type="text" id="zipcode" name="zipcode" required>
+        <label for="feelings">How do you feel about the weather?</label>
+        <input type="text" id="feelings" name="feelings" required>
+        <button type="submit">Get Weather</button>
+    </form>
+    <div id="weather-result"></div>
+
+    <script  src="/public/script.js" > </script>
+    
+    <script>
+       document.getElementById('weather-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const zipcode = document.getElementById('zipcode').value;
+    const feelings = document.getElementById('feelings').value;
+    const response = await fetch(`/api/weather?zipcode=${zipcode}`);
+    const data = await response.json();
+    const resultDiv = document.getElementById('weather-result');
+    if (data.error) {
+        resultDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+    } else {
+        resultDiv.innerHTML = `
+            <h2>Weather in ${data.name}</h2>
+            <p>Temperature: ${data.main.temp} °C</p>
+            <p>Weather: ${data.weather[0].description}</p>
+            <p>Your feelings: ${feelings}</p>
+        `;
+
+        await fetch('/add', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                date: new Date().toLocaleDateString(),
+                temp: data.main.temp,
+                feel: feelings
+            }),
+        });
+
+        retrieveData();
+    }
+});
+
+const retrieveData = async () => {
+    const request = await fetch('/all');
+    try {
+        const allData = await requests.json();
+        console.log(allData);
+        document.getElementById('temp').innerHTML = Math.round(allData.temp) + ' degrees';
+        document.getElementById('content').innerHTML = allData.feel;
+        document.getElementById('date').innerHTML = allData.date;
+    } catch (error) {
+        console.log("error", error);
+    }
+};
+
+    </script>
+</body>
+</html>
